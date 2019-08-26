@@ -1,0 +1,51 @@
+version: '2'
+
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.3.1
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      cluster.name: docker-cluster
+      discovery.type: single-node
+      ES_JAVA_OPTS: "-Xmx256m -Xms256m"
+      ELASTIC_PASSWORD: $ELK_PASSWORD
+    volumes:
+      - ./elasticsearch/data0:/usr/share/elasticsearch/data
+    networks:
+      - efk
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.3.1
+    ports:
+      - "5601:5601"
+    environment:
+      elasticsearch.url: http://elasticsearch:9200
+      elasticsearch.username: $ELK_USER
+      elasticsearch.password: $ELK_PASSWORD
+      xpack.monitoring.ui.container.elasticsearch.enabled: “true”
+      server.host: "0"
+    networks:
+      - efk
+    depends_on:
+      - elasticsearch
+  
+  fluentd:
+    image: govtechsg/fluentd-elasticsearch
+    ports:
+      - 24224:24224
+      - 24224:24224/udp
+    environment:
+      ELK_USER: $ELK_USER
+      ELK_PASSWORD: $ELK_PASSWORD
+    volumes:
+      - ./fluentd/config/fluent.conf:/fluentd/etc/fluent.conf
+    networks:
+      - efk
+    depends_on:
+      - elasticsearch
+
+networks:
+  efk:
+    driver: bridge
