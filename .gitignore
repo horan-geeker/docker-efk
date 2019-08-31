@@ -1,2 +1,2 @@
 .env
-elasticsearch/data0
+elasticsearch/data0/*
