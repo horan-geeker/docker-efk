@@ -32,7 +32,7 @@ services:
       - elasticsearch
   
   fluentd:
-    image: govtechsg/fluentd-elasticsearch
+    image: horan/fluentd
     ports:
       - $HOST:24224:24224
       - $HOST:24224:24224/udp
@@ -41,6 +41,7 @@ services:
       ELK_PASSWORD: $ELK_PASSWORD
     volumes:
       - ./fluentd/config/fluent.conf:/fluentd/etc/fluent.conf
+      - ./fluentd/geoip:/geoip
     networks:
       - efk
     depends_on:
